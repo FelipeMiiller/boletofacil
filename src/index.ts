@@ -2,6 +2,7 @@
 
 
 import { BoletoController } from './modules/boleto/http/boleto.controller';
+import { LoteController } from './modules/lote/http/lote.controller';
 import Server from './server';
 import 'dotenv/config'
 
@@ -13,7 +14,8 @@ import 'dotenv/config'
 
 
 const app = new Server([
-    new BoletoController()
+    new BoletoController(),
+    new LoteController()
 
 ]);
 

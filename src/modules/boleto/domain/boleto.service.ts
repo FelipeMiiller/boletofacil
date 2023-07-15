@@ -42,14 +42,15 @@ export class BoletoService {
     async boletoCSV(data: Express.Multer.File) {
         try {
             const boletosCSV = await csvParser(data) as unknown as Array<TCSVBoleto>
+
             const boletos = await this.findLotes(boletosCSV)
+            const result = await this.boletoRepository.createMany(boletos)
             
-            
-            console.log(boletos)
-            return boletos
+        
+            return result
         } catch (error) {
             if (error instanceof HttpException) {
-                console.log(error)
+               
                 throw error;
             }
 
@@ -59,7 +60,7 @@ export class BoletoService {
     }
 
 
-    async findLotes(boletos: Array<TCSVBoleto>) {
+    async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<IBoleto>> {
         try {
             let boletosOfLotesNotFound: Array<TCSVBoletoParse> = []
             let lotesFind: Array<ILote> = []
@@ -92,11 +93,12 @@ export class BoletoService {
                 }
 
             }
+          
             if (boletosOfLotesNotFound.length > 0) {
                 throw Error(JSON.stringify(boletosOfLotesNotFound));
             }
 
-            return lotesFind
+            return boletosForSaved
 
         } catch (error) {
             if(error instanceof DBException){

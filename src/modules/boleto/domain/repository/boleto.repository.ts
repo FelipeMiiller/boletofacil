@@ -22,6 +22,7 @@ export type IBoleto = {
 
 export interface IBoletoRepository {
     create(data: Omit<IBoleto, 'id'>): Promise<IBoleto>;
+    createMany(data: Omit<IBoleto, "id">[]): Promise<string>;
     findById(id: number): Promise<IBoleto | null>;
     findAll(): Promise<IBoleto[]>;
     update(id: number, data: Partial<IBoleto>): Promise<IBoleto>;
@@ -41,22 +42,34 @@ export class BoletoRepository implements IBoletoRepository {
         } catch (error) {
             if (error instanceof Error) {
 
-            throw new DBException(`Failed to create boleto: ${error.message}`, 400);
+                throw new DBException(`Failed to create boleto: ${error.message}`, 400);
             }
             throw new DBException('Failed to create boleto,unknown error !!!', 400);
         }
     }
 
+    async createMany(data: Omit<IBoleto, "id">[]): Promise<string> {
+        try {
+            const boleto = await this.prisma.boletos.createMany({ data: data });
 
+            return `${boleto.count} boleto(s) created.`;
+        } catch (error) {
+            if (error instanceof Error) {
+
+                throw new DBException(`Failed to create boleto: ${error.message}`, 400);
+            }
+            throw new DBException('Failed to create lote,unknown error !!!', 400);
+        }
+    }
 
     async findById(id: number): Promise<IBoleto | null> {
         try {
-            const boleto = await this.prisma.boletos.findUnique({ where: { id } }) ;
+            const boleto = await this.prisma.boletos.findUnique({ where: { id } });
 
             if (!boleto) {
                 throw new DBException(`Failed to find boleto by ID: not found`, 404);
             }
-            return boleto  as unknown as IBoleto;
+            return boleto as unknown as IBoleto;
         } catch (error) {
 
             if (error instanceof Error) {
@@ -70,7 +83,7 @@ export class BoletoRepository implements IBoletoRepository {
     async findAll(): Promise<IBoleto[]> {
         try {
             const boletos = await this.prisma.boletos.findMany();
-            return boletos  as unknown as IBoleto[];
+            return boletos as unknown as IBoleto[];
         } catch (error) {
 
             if (error instanceof Error) {
@@ -83,7 +96,7 @@ export class BoletoRepository implements IBoletoRepository {
     async update(id: number, data: Partial<IBoleto>): Promise<IBoleto> {
         try {
             const boleto = await this.prisma.boletos.update({ where: { id }, data });
-            return boleto  as unknown as IBoleto;
+            return boleto as unknown as IBoleto;
         } catch (error) {
             if (error instanceof Error) {
                 throw new DBException(`Failed to update boleto: ${error.message}`, 400);
@@ -105,4 +118,4 @@ export class BoletoRepository implements IBoletoRepository {
 }
 
 
-export const boletoRepository = new BoletoRepository();
+export const boletoRepository: IBoletoRepository = new BoletoRepository();

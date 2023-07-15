@@ -4,11 +4,17 @@ import { DBException } from '../../../../util/exceptions/HttpExceptions';
 
 
 
-export type ILote = Lotes
+export type ILote = {
+    id: number;
+    nome: string;
+    id_externo: number;
+    ativo: boolean;
+}
 
 
 export interface IloteRepository {
     create(data: Omit<ILote, 'id'>): Promise<ILote>;
+    createMany( data: Omit<ILote, "id">[]): Promise<any> ;
     findByIdExterno(id_externo: number): Promise<ILote | null>;
     findById(id: number): Promise<ILote | null>;
     findAll(): Promise<ILote[]>;
@@ -25,6 +31,20 @@ export class LoteRepository implements IloteRepository {
         try {
             const lote = await this.prisma.lotes.create({ data });
             return lote;
+        } catch (error) {
+            if (error instanceof Error) {
+
+                throw new DBException(`Failed to create lote: ${error.message}`, 400);
+            }
+            throw new DBException('Failed to create lote,unknown error !!!', 400);
+        }
+    }
+
+    async createMany( data: Omit<ILote, "id">[]): Promise<string> {
+        try {
+            const lote = await this.prisma.lotes.createMany({ data: data });
+
+            return `${lote.count} lote(s) created.`;
         } catch (error) {
             if (error instanceof Error) {
 
@@ -102,4 +122,4 @@ export class LoteRepository implements IloteRepository {
 }
 
 
-export const loteRepository = new LoteRepository();
+export const loteRepository:IloteRepository = new LoteRepository();
