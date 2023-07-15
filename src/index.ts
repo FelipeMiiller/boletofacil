@@ -1,8 +1,17 @@
 
 
-import { BoletoController } from './modules/boleto/http/imports.controller';
+
+import { BoletoController } from './modules/boleto/http/boleto.controller';
 import Server from './server';
 import 'dotenv/config'
+
+
+
+
+
+
+
+
 const app = new Server([
     new BoletoController()
 

@@ -9,7 +9,7 @@ export type ILote = Lotes
 
 export interface IloteRepository {
     create(data: Omit<ILote, 'id'>): Promise<ILote>;
-    findByIdExterno(id_externo: number): Promise<ILote > ;
+    findByIdExterno(id_externo: number): Promise<ILote | null>;
     findById(id: number): Promise<ILote | null>;
     findAll(): Promise<ILote[]>;
     update(id: number, data: Partial<ILote>): Promise<ILote>;
@@ -35,13 +35,10 @@ export class LoteRepository implements IloteRepository {
     }
 
 
-    async findByIdExterno(id_externo: number): Promise<ILote > {
+    async findByIdExterno(id_externo: number): Promise<ILote | null> {
         try {
-            const lote = await this.prisma.lotes.findUnique({ where: { id_externo } });
-            if (!lote) {
-                throw new DBException(`Failed to find lote by id_externo: not found`, 404);
-            }
-            return lote;
+
+            return this.prisma.lotes.findUnique({ where: { id_externo } });
         } catch (error) {
 
             if (error instanceof Error) {

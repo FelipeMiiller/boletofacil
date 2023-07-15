@@ -36,6 +36,6 @@ export async function csvParser(file: Express.Multer.File): Promise<Record<strin
 
     }
     result.shift()
-    console.log(result)
+   
     return result
 }

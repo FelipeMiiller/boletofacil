@@ -1,10 +1,12 @@
 import express, { Request, Response } from "express";
 import multer, { Multer } from "multer";
 import { csvParser } from "../../../util/csvParser";
+import { BoletoService } from "../domain/boleto.service";
+import { errorController } from "../../../util/exceptions/errosController";
 
 
 
-export class BoletosController {
+export class BoletoController {
     public path = '/boletos';
     public router = express.Router();
     private upload
@@ -21,13 +23,14 @@ export class BoletosController {
     }
 
     async csv(req: Request, res: Response) {
-        const file = req.file
-        const result = await csvParser(file!)
+        const boletoService = new BoletoService();
+        try {
+            const result = await boletoService.boletoCSV(req.file as Express.Multer.File)
+            res.status(200).json(result)
+        } catch (error) {
+          return  errorController(error, res)
+        }
 
-        console.log(result)
-
-
-        res.status(200).json(result)
     }
 
 
