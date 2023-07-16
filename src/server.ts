@@ -17,6 +17,12 @@ export default class Server {
     this.app = express();
 
     this.initializeSetup()
+    this.app.use( function (req, res, next) {
+      console.log( req.params);
+
+      console.log( req.query);
+      next();
+    });
     this.initializeControllers(controllers);
 
 

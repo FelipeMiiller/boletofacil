@@ -5,23 +5,14 @@ import HttpException from "./exceptions/HttpExceptions";
 
 
 
-
-
-
-
-
-
-
-
-
-export async function generateBoletosReport(boletos: IBoleto[]): Promise<Buffer> {
+export async function generateBoletosReport(boletos: IBoleto[]): Promise<string> {
     try {
         const content: Content = [];
 
         const table: Table = {
             headerRows: 1,
             widths: [40, '*', 40, 60, '*'],
-        
+
             body: [
                 ['id', 'nome_sacado', 'id_lote', 'valor', 'linha_digitavel'],
                 ...boletos.map((boleto) => [
@@ -32,6 +23,7 @@ export async function generateBoletosReport(boletos: IBoleto[]): Promise<Buffer>
                     boleto.linha_digitavel
                 ]),
             ],
+            
 
 
         }
@@ -50,7 +42,7 @@ export async function generateBoletosReport(boletos: IBoleto[]): Promise<Buffer>
 
         const printer = new PdfPrinter(fonts)
 
-        // Cria o documento PDF
+
         const documentDefinition: TDocumentDefinitions = {
             content,
             defaultStyle: {
@@ -74,16 +66,12 @@ export async function generateBoletosReport(boletos: IBoleto[]): Promise<Buffer>
             chunks.push(chunck)
         })
 
-     
-      
-          
-    
 
-        return new Promise<Buffer>((resolve, reject) => {
+
+        return new Promise<string>((resolve, reject) => {
             pdfDoc.on("end", () => {
                 const buffer = Buffer.concat(chunks);
-            
-                resolve(buffer );
+                resolve(buffer.toString("base64"));
             });
 
             pdfDoc.end();

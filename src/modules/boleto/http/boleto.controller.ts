@@ -3,6 +3,8 @@ import multer, { Multer } from "multer";
 
 import { BoletoService } from "../domain/boleto.service";
 import { errorController } from "../../../util/exceptions/errosController";
+import validate from "../../../middleware/validate";
+import { relatorioShema } from "./dto/createLoteSchema";
 
 
 
@@ -18,12 +20,13 @@ export class BoletoController {
     }
 
     public initializeRoutes() {
-      
-        this.router.post(`${this.path}/csv`, this.upload.single('file'), this.csv)
-        this.router.get(`${this.path}/relatorio`, this.relatorio)
+
+        this.router.post(`${this.path}/csv`, this.upload.single('csv'), this.importCSV)
+        this.router.post(`${this.path}/pdf`, this.upload.single('pdf'), this.importPDF)
+        this.router.get(`${this.path}`,validate(relatorioShema), this.relatorio)
     }
 
-    async csv(req: Request, res: Response) {
+    async importCSV(req: Request, res: Response) {
         const boletoService = new BoletoService();
         try {
             const result = await boletoService.boletoCSV(req.file as Express.Multer.File)
@@ -34,15 +37,22 @@ export class BoletoController {
 
     }
 
-    async relatorio(req: Request, res: Response) {
-     
-        const boletoService = new BoletoService();
-        const data = await boletoService.relatorio()
-
-        return res.end(data)
-
+    async importPDF(req: Request, res: Response) {
         
- 
+    }
 
 
-}}
+    async relatorio(req: Request, res: Response) {
+      
+
+     
+            const boletoService = new BoletoService();
+            const data = await boletoService.relatorio()
+
+            return res.end(data)
+       
+    }
+
+
+}
+

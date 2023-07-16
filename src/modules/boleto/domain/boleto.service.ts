@@ -8,7 +8,7 @@ import { Prisma } from "@prisma/client"
 import PdfPrinter from "pdfmake"
 import { TDocumentDefinitions } from "pdfmake/interfaces"
 import fs from "fs"
-import { generateBoletosReport } from "../../../util/pdfGenerate"
+import { generateBoletosReport } from "../../../util/relatorioGenerate"
 
 
 type TCSVBoleto = {
@@ -60,6 +60,11 @@ export class BoletoService {
             throw new HttpException('Failed to create lote,unknown error !!!',);
         }
 
+    }
+
+
+    async boletosPDF() {
+        
     }
 
     async relatorio() {
