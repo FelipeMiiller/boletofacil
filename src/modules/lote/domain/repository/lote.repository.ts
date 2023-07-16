@@ -8,6 +8,7 @@ export type ILote = {
     id: number;
     nome: string;
     id_externo: number;
+    order_pdf: number;
     ativo: boolean;
 }
 

@@ -25,6 +25,7 @@ export interface IBoletoRepository {
     createMany(data: Omit<IBoleto, "id">[]): Promise<string>;
     findById(id: number): Promise<IBoleto | null>;
     findAll(): Promise<IBoleto[]>;
+    findAllOrderByOrdemPdf(): Promise<IBoleto[]> ;
     update(id: number, data: Partial<IBoleto>): Promise<IBoleto>;
     delete(id: number): Promise<void>;
 }
@@ -92,6 +93,35 @@ export class BoletoRepository implements IBoletoRepository {
             throw new DBException('Failed to retrieve boletos, unknown error !!!', 400);
         }
     }
+
+
+
+    async findAllOrderByOrdemPdf(): Promise<IBoleto[]> {
+
+        try {
+
+            const boletos = await this.prisma.boletos.findMany({
+                orderBy: { lote: { ordem_pdf: 'asc' } },
+            });
+            return boletos as unknown as IBoleto[];
+
+        } catch (error) {
+
+            if (error instanceof Error) {
+                throw new DBException(`Failed to retrieve boletos: ${error.message}`, 400);
+            }
+            throw new DBException('Failed to retrieve boletos, unknown error !!!', 400);
+        }
+
+
+
+
+    }
+
+
+
+
+
 
     async update(id: number, data: Partial<IBoleto>): Promise<IBoleto> {
         try {

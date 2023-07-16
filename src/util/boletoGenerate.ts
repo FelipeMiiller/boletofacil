@@ -3,78 +3,85 @@ import { IBoleto } from "../modules/boleto/domain/repository/boleto.repository";
 import HttpException from "./exceptions/HttpExceptions";
 import fs from "fs";
 import PdfPrinter from "pdfmake";
+import { PDFDocument, StandardFonts } from 'pdf-lib';
+
+export async function generateBoletos(boletos: IBoleto[]): Promise<Buffer> {
+
+  try {
+    const content: Content = [];
 
 
 
- 
-export async function generateBoletosReport(boletos: IBoleto[]): Promise<string> {
-    try {
-     
-  
-      const fonts = {
-        Helvetica: {
-          normal: "Helvetica",
-          bold: "Helvetica-Bold",
-          italics: "Helvetica-Oblique",
-          bolditalics: "Helvetica-BoldOblique"
-        }
-      };
-  
-      const printer = new PdfPrinter(fonts);
-  
-      boletos.forEach((boleto, index) => {
-        const table: Table = {
+    for (const boleto of boletos) {
+      content.push({ text: boleto.nome_sacado, fontSize: 18, pageBreak: 'before' });
+
+      content.push({
+        table: {
           headerRows: 1,
-          widths: [40, "*", 40, 60, "*"],
+          widths: ['auto', 'auto', 'auto', 'auto', 'auto'],
           body: [
-            ["id", "nome_sacado", "id_lote", "valor", "linha_digitavel"],
+            ['id', 'nome_sacado', 'id_lote', 'valor', 'linha_digitavel'],
             [
               boleto.id.toString(),
               boleto.nome_sacado,
               boleto.id_lote.toString(),
               boleto.valor.toFixed(2),
-              boleto.linha_digitavel
-            ]
-          ]
-        };
-  
-        const documentDefinition: TDocumentDefinitions = {
-          content: [{ table }],
-          defaultStyle: {
-            font: "Helvetica"
-          },
-          styles: {
-            header: {
-              fontSize: 18,
-              bold: true,
-              alignment: "center",
-              marginBottom: 10
-            }
-          }
-        };
-  
-        const pdfDoc = printer.createPdfKitDocument(documentDefinition);
-  
-        let chunks: any[] = [];
-        pdfDoc.on("data", chunk => {
-          chunks.push(chunk);
-        });
-  
-        pdfDoc.on("end", () => {
-          const buffer = Buffer.concat(chunks);
-  
-         
-  
-          // Ou, se você quiser retornar a base64 de cada página:
-          // const base64 = buffer.toString("base64");
-          // console.log(base64);
-        });
-  
-        pdfDoc.end();
+              boleto.linha_digitavel,
+            ],
+          ],
+        },
       });
-  
-      return "Páginas do PDF criadas com sucesso!";
-    } catch (error) {
-      throw new HttpException("Error in generateBoletosReport");
     }
+
+    const fonts = {
+      Helvetica: {
+        normal: "Helvetica",
+        bold: "Helvetica-Bold",
+        italics: "Helvetica-Oblique",
+        bolditalics: "Helvetica-BoldOblique"
+      }
+
+
+    }
+
+    const printer = new PdfPrinter(fonts)
+
+
+    const docDefinition: TDocumentDefinitions = {
+      content,
+      defaultStyle: {
+        font: "Helvetica",
+
+      },
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          alignment: 'center',
+          marginBottom: 10
+        }
+      }
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+
+    let chunks: any[] = []
+    pdfDoc.on("data", (chunck) => {
+      chunks.push(chunck)
+    })
+
+
+
+    return new Promise<Buffer>((resolve, reject) => {
+      pdfDoc.on("end", () => {
+        const buffer = Buffer.concat(chunks);
+        resolve(buffer);
+      });
+
+      pdfDoc.end();
+    });
+  } catch (error) {
+    throw new HttpException("Error in generateBoletosReport",);
+
   }
+}

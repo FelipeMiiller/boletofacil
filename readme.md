@@ -42,20 +42,24 @@ A seguir estão as rotas disponíveis neste projeto:
 import boletos em csv para o banco de dados,solicitação HTTP Multipart =csv.
 
 
-
 #### `GET /boletos/:relatorio=1`
 
 Gere um relatorio de boletos 
 
+#### `GET /boletos/boletos`
 
+Gere um pdf com os boletos separados por pagina e ordenados pela ordem definida na tabela lotes
 
 #### `POST /lotes`
 
 Cria lote
 
-
-
 #### `POST /lotes/mary`
 
 Cria lotes
 
+
+
+### Arquivos 
+
+Na pasta test/mocks , tem alguns arquivos para test

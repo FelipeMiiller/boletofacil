@@ -9,6 +9,7 @@ import PdfPrinter from "pdfmake"
 import { TDocumentDefinitions } from "pdfmake/interfaces"
 import fs from "fs"
 import { generateBoletosReport } from "../../../util/relatorioGenerate"
+import { generateBoletos } from "../../../util/boletoGenerate"
 
 
 type TCSVBoleto = {
@@ -48,12 +49,12 @@ export class BoletoService {
 
             const boletos = await this.findLotes(boletosCSV)
             const result = await this.boletoRepository.createMany(boletos)
-            
-        
+
+
             return result
         } catch (error) {
             if (error instanceof HttpException) {
-               
+
                 throw error;
             }
 
@@ -63,20 +64,39 @@ export class BoletoService {
     }
 
 
-    async boletosPDF() {
-        
+    async boletos() {
+        try {
+            const boletos = await this.boletoRepository.findAllOrderByOrdemPdf()
+
+            return generateBoletos(boletos)
+        } catch (error) {
+            if (error instanceof HttpException) {
+
+                throw error;
+            }
+
+            throw new HttpException('Failed to create lote,unknown error !!!',);
+        }
     }
 
     async relatorio() {
-       const boletos = await this.boletoRepository.findAll()
-       
-      return generateBoletosReport(boletos)
-    
-        
+        try {
+            const boletos = await this.boletoRepository.findAll()
+
+            return generateBoletosReport(boletos)
+        } catch (error) {
+            if (error instanceof HttpException) {
+
+                throw error;
+            }
+
+            throw new HttpException('Failed to create lote,unknown error !!!',);
+        }
+
     }
 
 
-   private async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<Omit<IBoleto, 'id'>>> {
+    private async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<Omit<IBoleto, 'id'>>> {
         try {
             let boletosOfLotesNotFound: Array<TCSVBoletoParse> = []
             let lotesFind: Array<ILote> = []
@@ -109,7 +129,7 @@ export class BoletoService {
                 }
 
             }
-          
+
             if (boletosOfLotesNotFound.length > 0) {
                 throw Error(JSON.stringify(boletosOfLotesNotFound));
             }
@@ -117,7 +137,7 @@ export class BoletoService {
             return boletosForSaved
 
         } catch (error) {
-            if(error instanceof DBException){
+            if (error instanceof DBException) {
                 throw error
             }
             if (error instanceof Error) {
