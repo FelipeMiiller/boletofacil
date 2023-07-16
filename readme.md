@@ -41,6 +41,10 @@ A seguir estão as rotas disponíveis neste projeto:
 
 import boletos em csv para o banco de dados,solicitação HTTP Multipart =csv.
 
+#### `POST /boletos/pdf`
+
+import pdf com boletos e separa por ordem predefinida,solicitação HTTP Multipart =csv.
+
 
 #### `GET /boletos/:relatorio=1`
 

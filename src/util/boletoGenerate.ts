@@ -1,9 +1,9 @@
 import { Content, TDocumentDefinitions, Table } from "pdfmake/interfaces";
 import { IBoleto } from "../modules/boleto/domain/repository/boleto.repository";
 import HttpException from "./exceptions/HttpExceptions";
-import fs from "fs";
+
 import PdfPrinter from "pdfmake";
-import { PDFDocument, StandardFonts } from 'pdf-lib';
+
 
 export async function generateBoletos(boletos: IBoleto[]): Promise<Buffer> {
 
@@ -13,7 +13,7 @@ export async function generateBoletos(boletos: IBoleto[]): Promise<Buffer> {
 
 
     for (const boleto of boletos) {
-      content.push({ text: boleto.nome_sacado, fontSize: 18, pageBreak: 'before' });
+      content.push({ text: boleto.nome_sacado, fontSize: 18, bold: true });
 
       content.push({
         table: {
@@ -30,6 +30,7 @@ export async function generateBoletos(boletos: IBoleto[]): Promise<Buffer> {
             ],
           ],
         },
+        pageBreak: 'after' 
       });
     }
 

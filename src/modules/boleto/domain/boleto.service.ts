@@ -10,6 +10,7 @@ import { TDocumentDefinitions } from "pdfmake/interfaces"
 import fs from "fs"
 import { generateBoletosReport } from "../../../util/relatorioGenerate"
 import { generateBoletos } from "../../../util/boletoGenerate"
+import { splitPDFPages } from "../../../util/splitPDFPages"
 
 
 type TCSVBoleto = {
@@ -62,6 +63,35 @@ export class BoletoService {
         }
 
     }
+
+    async boletosPDF(data: Express.Multer.File) {
+        try {
+            const lotes = await this.loteRepository.findAllOrderByOrdemPdf()
+            const boletosPDF = await splitPDFPages(data,lotes)
+           
+          
+          
+           
+
+            return boletosPDF
+        } catch (error) {
+            if (error instanceof HttpException) {
+
+                throw error;
+            }
+
+            throw new HttpException('Failed to create lote,unknown error !!!',);
+        }
+
+    }
+
+
+
+
+
+
+
+
 
 
     async boletos() {

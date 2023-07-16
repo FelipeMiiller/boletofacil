@@ -8,17 +8,18 @@ export type ILote = {
     id: number;
     nome: string;
     id_externo: number;
-    order_pdf: number;
+    ordem_pdf: number;
     ativo: boolean;
 }
 
 
 export interface IloteRepository {
     create(data: Omit<ILote, 'id'>): Promise<ILote>;
-    createMany( data: Omit<ILote, "id">[]): Promise<any> ;
+    createMany(data: Omit<ILote, "id">[]): Promise<any>;
     findByIdExterno(id_externo: number): Promise<ILote | null>;
     findById(id: number): Promise<ILote | null>;
     findAll(): Promise<ILote[]>;
+  findAllOrderByOrdemPdf(): Promise<ILote[]>
     update(id: number, data: Partial<ILote>): Promise<ILote>;
     delete(id: number): Promise<void>;
 }
@@ -31,7 +32,7 @@ export class LoteRepository implements IloteRepository {
     async create(data: Omit<ILote, 'id'>): Promise<ILote> {
         try {
             const lote = await this.prisma.lotes.create({ data });
-            return lote;
+            return lote as unknown as ILote;
         } catch (error) {
             if (error instanceof Error) {
 
@@ -41,9 +42,9 @@ export class LoteRepository implements IloteRepository {
         }
     }
 
-    async createMany( data: Omit<ILote, "id">[]): Promise<string> {
+    async createMany(data: Omit<ILote, "id">[]): Promise<string> {
         try {
-            const lote = await this.prisma.lotes.createMany({ data: data });
+            const lote = await this.prisma.lotes.createMany({ data });
 
             return `${lote.count} lote(s) created.`;
         } catch (error) {
@@ -59,7 +60,7 @@ export class LoteRepository implements IloteRepository {
     async findByIdExterno(id_externo: number): Promise<ILote | null> {
         try {
 
-            return this.prisma.lotes.findUnique({ where: { id_externo } });
+            return this.prisma.lotes.findUnique({ where: { id_externo } }) as unknown as ILote;
         } catch (error) {
 
             if (error instanceof Error) {
@@ -74,7 +75,7 @@ export class LoteRepository implements IloteRepository {
     async findById(id: number): Promise<ILote | null> {
         try {
             const lote = await this.prisma.lotes.findUnique({ where: { id } });
-            return lote;
+            return lote as unknown as ILote;
         } catch (error) {
 
             if (error instanceof Error) {
@@ -88,7 +89,20 @@ export class LoteRepository implements IloteRepository {
     async findAll(): Promise<ILote[]> {
         try {
             const lotes = await this.prisma.lotes.findMany();
-            return lotes;
+            return lotes as unknown as ILote[]
+        } catch (error) {
+
+            if (error instanceof Error) {
+                throw new DBException(`Failed to retrieve lotes: ${error.message}`, 400);
+            }
+            throw new DBException('Failed to retrieve lotes, unknown error !!!', 400);
+        }
+    }
+
+    async findAllOrderByOrdemPdf(): Promise<ILote[]> {
+        try {
+            const lotes = await this.prisma.lotes.findMany({orderBy:{ordem_pdf: 'asc'}});
+            return lotes as unknown as ILote[]
         } catch (error) {
 
             if (error instanceof Error) {
@@ -101,7 +115,7 @@ export class LoteRepository implements IloteRepository {
     async update(id: number, data: Partial<ILote>): Promise<ILote> {
         try {
             const lote = await this.prisma.lotes.update({ where: { id }, data });
-            return lote;
+            return lote as unknown as ILote;
         } catch (error) {
             if (error instanceof Error) {
                 throw new DBException(`Failed to update lote: ${error.message}`, 400);
@@ -123,4 +137,4 @@ export class LoteRepository implements IloteRepository {
 }
 
 
-export const loteRepository:IloteRepository = new LoteRepository();
+export const loteRepository: IloteRepository = new LoteRepository();

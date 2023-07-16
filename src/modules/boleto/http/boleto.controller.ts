@@ -24,7 +24,7 @@ export class BoletoController {
         this.router.post(`${this.path}/csv`, this.upload.single('csv'), this.importCSV)
         this.router.post(`${this.path}/pdf`, this.upload.single('pdf'), this.importPDF)
         this.router.get(`${this.path}/boletos`, this.boletos)
-        this.router.get(`${this.path}`,validate(relatorioShema), this.relatorio)
+        this.router.get(`${this.path}`, validate(relatorioShema), this.relatorio)
     }
 
     async importCSV(req: Request, res: Response) {
@@ -39,29 +39,41 @@ export class BoletoController {
     }
 
     async importPDF(req: Request, res: Response) {
-        
-    }
-
-    async boletos (req: Request, res: Response) {
-        
         const boletoService = new BoletoService();
-        const data = await boletoService.boletos()
+        try {
 
-        return res.end(data)
+            const result = await boletoService.boletosPDF(req.file as Express.Multer.File)
+            res.status(200).json(result)
+        } catch (error) {
+            return errorController(error, res)
+        }
+
     }
 
+    async boletos(req: Request, res: Response) {
+        try {
+            const boletoService = new BoletoService();
+            const data = await boletoService.boletos()
 
+            return res.end(data)
+        } catch (error) {
+            return errorController(error, res)
+        }
+
+    }
 
 
     async relatorio(req: Request, res: Response) {
-      
 
-     
+        try {
+
             const boletoService = new BoletoService();
             const data = await boletoService.relatorio()
 
             return res.end(data)
-       
+        } catch (error) {
+            return errorController(error, res)
+        }
     }
 
 
