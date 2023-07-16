@@ -5,7 +5,10 @@ import { IBoletoRepository, boletoRepository as BoletoRepository, IBoleto } from
 import { ILote, IloteRepository, loteRepository as LoteRepository } from "../../lote/domain/repository/lote.repository"
 import HttpException, { DBException } from "../../../util/exceptions/HttpExceptions"
 import { Prisma } from "@prisma/client"
-
+import PdfPrinter from "pdfmake"
+import { TDocumentDefinitions } from "pdfmake/interfaces"
+import fs from "fs"
+import { generateBoletosReport } from "../../../util/pdfGenerate"
 
 
 type TCSVBoleto = {
@@ -59,8 +62,16 @@ export class BoletoService {
 
     }
 
+    async relatorio() {
+       const boletos = await this.boletoRepository.findAll()
+       
+      return generateBoletosReport(boletos)
+    
+        
+    }
 
-    async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<IBoleto>> {
+
+   private async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<Omit<IBoleto, 'id'>>> {
         try {
             let boletosOfLotesNotFound: Array<TCSVBoletoParse> = []
             let lotesFind: Array<ILote> = []

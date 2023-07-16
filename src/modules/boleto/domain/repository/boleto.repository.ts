@@ -6,7 +6,7 @@ import { DBException } from '../../../../util/exceptions/HttpExceptions';
 
 
 export type IBoleto = {
-    id?: number;
+    id: number;
     nome_sacado: string;
     id_lote: number;
     valor: number;
