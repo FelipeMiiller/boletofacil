@@ -1,4 +1,4 @@
-import { body, query, validationResult } from 'express-validator';
+import { body, query, validationResult} from 'express-validator';
 
 export const createLoteSchema = [
 

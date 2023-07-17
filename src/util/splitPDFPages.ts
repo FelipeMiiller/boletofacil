@@ -10,13 +10,14 @@ import path from 'path';
 
 export async function splitPDFPages(data: Express.Multer.File, lotes: ILote[]): Promise<string> {
   const pathDoc = data.path
-  const rootPath = path.join(__dirname, '../../');
+
+  const rootPath = process.env.DIR_FILES || path.join(__dirname, '../../');
   const buffer = fs.readFileSync(pathDoc);
   const pdfDoc = await PDFDocument.load(buffer);
 
 
   try {
-
+   
 
     for (let i = 0; i < pdfDoc.getPages().length; i++) {
       const page = pdfDoc.getPages()[i];
@@ -40,7 +41,7 @@ export async function splitPDFPages(data: Express.Multer.File, lotes: ILote[]): 
   }
 
   catch (error) {
-    throw new HttpException("Failed to read pdf !!!",);
+    throw new HttpException(JSON.stringify(error),"Error reading pdf");
   } finally {
 
     fs.unlinkSync(pathDoc)

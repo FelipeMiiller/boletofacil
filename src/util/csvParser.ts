@@ -11,6 +11,7 @@ export async function csvParser(data: Express.Multer.File): Promise<Record<strin
     const buffer = fs.readFileSync(pathDoc);
 
     try {
+
         const readableFile = new Readable();
         readableFile.push(buffer);
         readableFile.push(null);
@@ -41,9 +42,9 @@ export async function csvParser(data: Express.Multer.File): Promise<Record<strin
 
         return result
     } catch (error) {
-        throw new HttpException("Failed to read csv !!!",)
-    } finally {
+        throw new HttpException(JSON.stringify(error), "Error reading csv");
 
+    } finally {
         fs.unlinkSync(pathDoc)
     }
 }

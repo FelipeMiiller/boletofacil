@@ -39,13 +39,11 @@ export class BoletoService {
 
 
 
-    async boletoCSV(data: Express.Multer.File) {
+    async importCSV(data: Express.Multer.File) {
         try {
             const boletosCSV = await csvParser(data) as unknown as Array<TCSVBoleto>
-
             const boletos = await this.findLotes(boletosCSV)
             const result = await this.boletoRepository.createMany(boletos)
-
 
             return result
         } catch (error) {
@@ -54,17 +52,15 @@ export class BoletoService {
                 throw error;
             }
 
-            throw new HttpException('Failed to create lote,unknown error !!!',);
+            throw new HttpException('Failed to import boletos,unknown error !!!',);
         }
 
     }
 
-    async boletosPDF(data: Express.Multer.File) {
+    async splitPDF(data: Express.Multer.File) {
         try {
             const lotes = await this.loteRepository.findAllOrderByOrdemPdf()
             const boletosPDF = await splitPDFPages(data, lotes)
-
-
             return boletosPDF
         } catch (error) {
             if (error instanceof HttpException) {
@@ -72,16 +68,15 @@ export class BoletoService {
                 throw error;
             }
 
-            throw new HttpException('Failed to create lote,unknown error !!!',);
+            throw new HttpException('Failed to  split pdf,unknown error !!!',);
         }
     }
 
 
 
-    async boletos() {
+    async boletosOrderByOrdemPdf() {
         try {
             const boletos = await this.boletoRepository.findAllOrderByOrdemPdf()
-
             return generateBoletos(boletos)
         } catch (error) {
             if (error instanceof HttpException) {
@@ -89,22 +84,19 @@ export class BoletoService {
                 throw error;
             }
 
-            throw new HttpException('Failed to create lote,unknown error !!!',);
+            throw new HttpException('Failed to generate boletos,unknown error !!!',);
         }
     }
 
     async relatorio() {
         try {
             const boletos = await this.boletoRepository.findAll()
-
             return generateBoletosReport(boletos)
         } catch (error) {
             if (error instanceof HttpException) {
-
                 throw error;
             }
-
-            throw new HttpException('Failed to create lote,unknown error !!!',);
+            throw new HttpException('Failed to create report,unknown error !!!',);
         }
 
     }
@@ -126,9 +118,7 @@ export class BoletoService {
                 }
 
                 const lote = await this.loteRepository.findByIdExterno(boletoParse.unidade);
-
                 if (lote) {
-
                     lotesFind.push(lote as ILote);
                     boletosForSaved.push({
                         nome_sacado: boletoParse.nome,
@@ -136,7 +126,6 @@ export class BoletoService {
                         valor: boletoParse.valor,
                         linha_digitavel: boletoParse.linha_digitavel,
                         ativo: boletoParse.ativo
-
                     })
 
                 } else {

@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { errorController } from "../../../util/exceptions/errosController";
 import { ILote, loteRepository } from "../domain/repository/lote.repository";
-import { createLoteSchema, createManyLotesSchema } from "./dto/createLoteSchema";
+import { createLoteSchema, createManyLotesSchema } from "./dto/loteSchemas";
 import validate from "../../../middleware/validate";
 
 
