@@ -4,13 +4,11 @@ import { csvParser } from "../../../util/csvParser"
 import { IBoletoRepository, boletoRepository as BoletoRepository, IBoleto } from "./repository/boleto.repository"
 import { ILote, IloteRepository, loteRepository as LoteRepository } from "../../lote/domain/repository/lote.repository"
 import HttpException, { DBException } from "../../../util/exceptions/HttpExceptions"
-import { Prisma } from "@prisma/client"
-import PdfPrinter from "pdfmake"
-import { TDocumentDefinitions } from "pdfmake/interfaces"
-import fs from "fs"
-import { generateBoletosReport } from "../../../util/relatorioGenerate"
-import { generateBoletos } from "../../../util/boletoGenerate"
+
+
 import { splitPDFPages } from "../../../util/splitPDFPages"
+import { generateBoletos } from "../../../util/boletoGenerate"
+import { generateBoletosReport } from "../../../util/relatorioGenerate"
 
 
 type TCSVBoleto = {
@@ -18,6 +16,7 @@ type TCSVBoleto = {
     unidade: string,
     valor: string,
     linha_digitavel: string
+    ativo: boolean
 }
 
 type TCSVBoletoParse = {
@@ -29,10 +28,7 @@ type TCSVBoletoParse = {
 
 
 
-
-
 export class BoletoService {
-
 
     constructor(
         private boletoRepository: IBoletoRepository = BoletoRepository,
@@ -40,7 +36,6 @@ export class BoletoService {
 
 
     ) { }
-
 
 
 
@@ -67,11 +62,8 @@ export class BoletoService {
     async boletosPDF(data: Express.Multer.File) {
         try {
             const lotes = await this.loteRepository.findAllOrderByOrdemPdf()
-            const boletosPDF = await splitPDFPages(data,lotes)
-           
-          
-          
-           
+            const boletosPDF = await splitPDFPages(data, lotes)
+
 
             return boletosPDF
         } catch (error) {
@@ -82,15 +74,7 @@ export class BoletoService {
 
             throw new HttpException('Failed to create lote,unknown error !!!',);
         }
-
     }
-
-
-
-
-
-
-
 
 
 
@@ -137,7 +121,8 @@ export class BoletoService {
                     nome: boleto.nome,
                     unidade: parseInt(boleto.unidade),
                     valor: parseFloat(boleto.valor),
-                    linha_digitavel: boleto.linha_digitavel
+                    linha_digitavel: boleto.linha_digitavel,
+                    ativo: boleto.ativo || true
                 }
 
                 const lote = await this.loteRepository.findByIdExterno(boletoParse.unidade);
@@ -150,7 +135,7 @@ export class BoletoService {
                         id_lote: lote.id,
                         valor: boletoParse.valor,
                         linha_digitavel: boletoParse.linha_digitavel,
-                        ativo: true
+                        ativo: boletoParse.ativo
 
                     })
 

@@ -14,7 +14,7 @@ export class BoletoController {
     private upload
 
 
-    constructor(upload: Multer = multer()) {
+    constructor(upload: Multer = multer({ dest: 'upload' })) {
         this.upload = upload
         this.initializeRoutes();
     }
@@ -40,14 +40,16 @@ export class BoletoController {
 
     async importPDF(req: Request, res: Response) {
         const boletoService = new BoletoService();
+
         try {
 
             const result = await boletoService.boletosPDF(req.file as Express.Multer.File)
             res.status(200).json(result)
         } catch (error) {
             return errorController(error, res)
-        }
 
+
+        }
     }
 
     async boletos(req: Request, res: Response) {

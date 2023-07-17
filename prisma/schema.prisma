@@ -28,7 +28,7 @@ model Boletos {
   id_lote         Int
   valor           Decimal
   linha_digitavel String   @db.VarChar(255)
-  ativo           Boolean  @default(false)
+  ativo           Boolean  @default(true)
   lote            Lotes    @relation(fields: [id_lote], references: [id])
   criado_em       DateTime @default(now())
 

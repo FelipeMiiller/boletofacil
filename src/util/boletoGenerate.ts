@@ -13,8 +13,11 @@ export async function generateBoletos(boletos: IBoleto[]): Promise<Buffer> {
 
 
     for (const boleto of boletos) {
-      content.push({ text: boleto.nome_sacado, fontSize: 18, bold: true });
-
+      if(boleto.id === boletos[0].id){
+      content.push({ text: boleto.nome_sacado, fontSize: 18, bold: true  });
+    }else{
+    content.push({ text: boleto.nome_sacado, fontSize: 18, bold: true, pageBreak: 'before'  });
+  }
       content.push({
         table: {
           headerRows: 1,
@@ -30,7 +33,7 @@ export async function generateBoletos(boletos: IBoleto[]): Promise<Buffer> {
             ],
           ],
         },
-        pageBreak: 'after' 
+       
       });
     }
 
