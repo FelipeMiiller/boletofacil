@@ -12,7 +12,9 @@ export type IBoleto = {
     valor: number;
     linha_digitavel: string;
     ativo: boolean;
+    vencimento: Date;
     criado_em?: Date;
+    
 }
 
 

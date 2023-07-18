@@ -16,7 +16,8 @@ type TCSVBoleto = {
     unidade: string,
     valor: string,
     linha_digitavel: string
-    ativo: boolean
+    ativo: boolean,
+    vencimento: string
 }
 
 type TCSVBoletoParse = {
@@ -41,17 +42,17 @@ export class BoletoService {
 
     async importCSV(data: Express.Multer.File) {
         try {
+            console.log(data)
             const boletosCSV = await csvParser(data) as unknown as Array<TCSVBoleto>
             const boletos = await this.findLotes(boletosCSV)
             const result = await this.boletoRepository.createMany(boletos)
 
             return result
         } catch (error) {
+            console.log(error)
             if (error instanceof HttpException) {
-
                 throw error;
             }
-
             throw new HttpException('Failed to import boletos,unknown error !!!',);
         }
 
@@ -88,7 +89,7 @@ export class BoletoService {
         }
     }
 
-    async relatorio() {
+    async report() {
         try {
             const boletos = await this.boletoRepository.findAll()
             return generateBoletosReport(boletos)
@@ -104,7 +105,7 @@ export class BoletoService {
 
     private async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<Omit<IBoleto, 'id'>>> {
         try {
-            let boletosOfLotesNotFound: Array<TCSVBoletoParse> = []
+            let lotesNotFound: Array<{nome: string, unidade: number}> = []
             let lotesFind: Array<ILote> = []
             let boletosForSaved: Array<Omit<IBoleto, 'id'>> = []
 
@@ -114,28 +115,32 @@ export class BoletoService {
                     unidade: parseInt(boleto.unidade),
                     valor: parseFloat(boleto.valor),
                     linha_digitavel: boleto.linha_digitavel,
-                    ativo: boleto.ativo || true
+                    ativo: boleto.ativo || false,
+                    vencimento: new Date(boleto.vencimento)
                 }
 
                 const lote = await this.loteRepository.findByIdExterno(boletoParse.unidade);
                 if (lote) {
+                    console.log(lote)
                     lotesFind.push(lote as ILote);
                     boletosForSaved.push({
                         nome_sacado: boletoParse.nome,
                         id_lote: lote.id,
                         valor: boletoParse.valor,
                         linha_digitavel: boletoParse.linha_digitavel,
-                        ativo: boletoParse.ativo
+                        ativo: boletoParse.ativo,
+                        vencimento: boletoParse.vencimento
+                        
                     })
 
                 } else {
-                    boletosOfLotesNotFound.push(boletoParse)
+                    lotesNotFound.push({nome:boletoParse.nome, unidade:boletoParse.unidade})
                 }
 
             }
 
-            if (boletosOfLotesNotFound.length > 0) {
-                throw Error(JSON.stringify(boletosOfLotesNotFound));
+            if (lotesNotFound.length > 0) {
+                throw Error(JSON.stringify(lotesNotFound));
             }
 
             return boletosForSaved

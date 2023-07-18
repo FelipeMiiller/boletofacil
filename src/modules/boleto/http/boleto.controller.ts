@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import multer, { Multer } from "multer";
-
 import { BoletoService } from "../domain/boleto.service";
 import { errorController } from "../../../util/exceptions/errosController";
 import validate from "../../../middleware/validate";
@@ -15,23 +14,23 @@ export class BoletoController {
     private upload
 
 
-    constructor(upload: Multer = multer({ dest: 'upload' })) {
+    constructor(upload: Multer = multer()) {
         this.upload = upload
         this.initializeRoutes();
     }
 
     public initializeRoutes() {
 
-        this.router.post(`${this.path}/csv`, this.upload.single('csv'), validateFile("application/csv"), this.importCSV)
+        this.router.post(`${this.path}/csv`, this.upload.single('csv'), validateFile("text/csv"), this.importCSV)
         this.router.post(`${this.path}/pdf`, this.upload.single('pdf'), validateFile("application/pdf"), this.importPDF)
-        this.router.get(`${this.path}/boletos`, this.boletos)
-        this.router.get(`${this.path}`, validate(relatorioShema), this.relatorio)
+        this.router.get(`${this.path}/boletos`, this.orderPDF)
+        this.router.get(`${this.path}`, validate(relatorioShema), this.report)
     }
 
     async importCSV(req: Request, res: Response) {
         const boletoService = new BoletoService();
         try {
-
+           console.log(req.file)
             const result = await boletoService.importCSV(req.file as Express.Multer.File)
             res.status(200).json(result)
         } catch (error) {
@@ -53,7 +52,7 @@ export class BoletoController {
         }
     }
 
-    async boletos(req: Request, res: Response) {
+    async orderPDF(req: Request, res: Response) {
         try {
             const boletoService = new BoletoService();
             const data = await boletoService.boletosOrderByOrdemPdf()
@@ -66,12 +65,12 @@ export class BoletoController {
     }
 
 
-    async relatorio(req: Request, res: Response) {
+    async report(req: Request, res: Response) {
 
         try {
 
             const boletoService = new BoletoService();
-            const data = await boletoService.relatorio()
+            const data = await boletoService.report()
 
             return res.end(data)
         } catch (error) {

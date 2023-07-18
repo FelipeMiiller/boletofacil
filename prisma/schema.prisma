@@ -25,12 +25,14 @@ model Lotes {
 model Boletos {
   id              Int      @id @default(autoincrement())
   nome_sacado     String   @db.VarChar(255)
-  id_lote         Int
+  id_lote         Int      
   valor           Decimal
   linha_digitavel String   @db.VarChar(255)
   ativo           Boolean  @default(true)
   lote            Lotes    @relation(fields: [id_lote], references: [id])
+  vencimento      DateTime 
   criado_em       DateTime @default(now())
 
+  @@unique([vencimento, id_lote])
   @@map("boletos")
 }

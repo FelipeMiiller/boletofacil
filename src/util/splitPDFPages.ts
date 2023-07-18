@@ -9,16 +9,13 @@ import path from 'path';
 
 
 export async function splitPDFPages(data: Express.Multer.File, lotes: ILote[]): Promise<string> {
-  const pathDoc = data.path
 
-  const rootPath = process.env.DIR_FILES || path.join(__dirname, '../../');
-  const buffer = fs.readFileSync(pathDoc);
-  const pdfDoc = await PDFDocument.load(buffer);
+  const rootPath = process.env.DIR_FILES || path.join(__dirname, '.././');
+
+  const pdfDoc = await PDFDocument.load(data.buffer);
 
 
   try {
-   
-
     for (let i = 0; i < pdfDoc.getPages().length; i++) {
       const page = pdfDoc.getPages()[i];
 
@@ -31,7 +28,11 @@ export async function splitPDFPages(data: Express.Multer.File, lotes: ILote[]): 
       if (!fs.existsSync(outputFilePath)) {
         fs.mkdirSync(outputFilePath, { recursive: true });
       }
-      const outputPath = path.join(outputFilePath, `${i + 1}.pdf`);
+      const lote = lotes.find(x => x.ordem_pdf == i+1);
+      console.log("lote", lote)
+      console.log("page", i+1)
+
+      const outputPath = path.join(outputFilePath, `${lote?.id  }.pdf`);
       const pdfBytes = await newPdfDoc.save();
 
       fs.writeFileSync(outputPath, pdfBytes);
@@ -41,10 +42,10 @@ export async function splitPDFPages(data: Express.Multer.File, lotes: ILote[]): 
   }
 
   catch (error) {
-    throw new HttpException(JSON.stringify(error),"Error reading pdf");
-  } finally {
+    if (error instanceof Error) {
+      throw new HttpException(error.message, "Error reading csv");
+    }
+    throw new HttpException(JSON.stringify(error), "Error reading csv");
 
-    fs.unlinkSync(pathDoc)
   }
-
 }

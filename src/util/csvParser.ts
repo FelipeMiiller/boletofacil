@@ -6,12 +6,17 @@ import HttpException from "./exceptions/HttpExceptions";
 
 
 export async function csvParser(data: Express.Multer.File): Promise<Record<string, string | number>[]> {
-    const pathDoc = data.path
 
-    const buffer = fs.readFileSync(pathDoc);
+
+    let buffer: Buffer = data.buffer
 
     try {
 
+
+
+
+
+      
         const readableFile = new Readable();
         readableFile.push(buffer);
         readableFile.push(null);
@@ -42,9 +47,10 @@ export async function csvParser(data: Express.Multer.File): Promise<Record<strin
 
         return result
     } catch (error) {
+        if (error instanceof Error) {
+            throw new HttpException(error.message, "Error reading csv");
+        }
         throw new HttpException(JSON.stringify(error), "Error reading csv");
 
-    } finally {
-        fs.unlinkSync(pathDoc)
     }
 }

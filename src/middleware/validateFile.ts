@@ -4,21 +4,21 @@ import express, { NextFunction } from 'express';
 
 
 
-const validateFile = (fieldname: "application/csv" | "application/pdf") => {
+const validateFile = (mimetype: "text/csv" | "application/pdf") => {
   return async (
     request: express.Request,
     response: express.Response,
     next: NextFunction,
   ) => {
 
-    if (fieldname === request.file?.mimetype) {
+    if (mimetype === request.file?.mimetype) {
       return next();
     }
 
     const sendError = {
       status: 422,
       name: 'Unprocessable Entity',
-      message: `Invalid fieldname, not is ${fieldname} !!!`
+      message: `Invalid mimetype, not is ${mimetype} !!!`
 
     }
 

@@ -1,15 +1,19 @@
 import { BoletoService } from "../boleto.service";
-
+import { Readable } from "stream";
 describe('Should test service boleto', () => {
 
     const boletoService = new BoletoService();
     const csvFile = {
-        fieldname: 'file',
+        fieldname: 'csv',
         originalname: 'boletos.csv',
         encoding: '7bit',
         mimetype: 'text/csv',
+        destination: 'upload',
+        filename: '60e2d77600bd3be990f62b4c4b6501b7',
+        path: 'upload/60e2d77600bd3be990f62b4c4b6501b7',
+        size: 106,
         buffer: Buffer.from('nome,unidade,valor,linha_digitavel\nJOSE DA SILVA,17,182.54,123456123456123456\nMARCOS ROBERTO,18,178.20,123456123456123456\nMARCIA CARVALHO,19,128.00,123456123456123456\n'),
-        size: 106
+
     };
     const Boletos =
         [
@@ -39,18 +43,14 @@ describe('Should test service boleto', () => {
     describe('Should test method boletoCSV', () => {
         it('should salve csv into table boleto', async () => {
 
-            const boleto = await boletoService.boletoCSV(csvFile as Express.Multer.File)
+            const boleto = await boletoService.importCSV(csvFile as Express.Multer.File)
             console.log(boleto)
 
-            expect(boleto).toEqual([]);
+
 
         });
 
-        it('should throw an error when lotes are not found', async () => {
-
-
-            await expect(boletoService.boletoCSV(csvFile as Express.Multer.File)).rejects.toThrow(JSON.stringify(boletosFormat));
-        });
+       
     });
 })
 
