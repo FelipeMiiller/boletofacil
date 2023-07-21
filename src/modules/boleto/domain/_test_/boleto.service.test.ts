@@ -1,5 +1,8 @@
 import { BoletoService } from "../boleto.service";
 import { Readable } from "stream";
+import { BoletoRepository, IBoletoRepository } from "../repository/boleto.repository";
+import HttpException from "../../../../util/exceptions/HttpExceptions";
+import { IloteRepository, LoteRepository } from "../../../lote/domain/repository/lote.repository";
 describe('Should test service boleto', () => {
 
     const boletoService = new BoletoService();
@@ -30,27 +33,43 @@ describe('Should test service boleto', () => {
 
         ]
 
-    const lotes =
+    const lotesCreated =
         [
-            { id: 1, nome: "JOSE DA SILVA", id_externo: 17, ativo: true },
-            { id: 2, nome: "MARCOS ROBERTO", id_externo: 18, ativo: false },
-            { id: 3, nome: "MARCIA CARVALHO", id_externo: 19, ativo: true },
+            { nome: "JOSE DA SILVA", id_externo: 17, ativo: true, ordem_pdf: 3 },
+            { nome: "MARCOS ROBERTO", id_externo: 11, ativo: true, ordem_pdf: 6 },
+            { nome: "MARCIA CARVALHO", id_externo: 20, ativo: true, ordem_pdf: 4 },
+
+
         ]
 
+    const boletoRepository: IBoletoRepository = new BoletoRepository()
+    const loteRepository: IloteRepository = new LoteRepository()
 
+    beforeAll(async () => {
+        await boletoRepository.deleteAll();
+        await loteRepository.deleteAll();
+
+
+    });
 
 
     describe('Should test method boletoCSV', () => {
-        it('should salve csv into table boleto', async () => {
+        it('should ', async () => {
+            const lotesNotFound = [
+                { nome: "JOSE DA SILVA", unidade: 17 }, { nome: "MARCOS ROBERTO", unidade: 18 },
+                { nome: "MARCIA CARVALHO", unidade: 19 }
+            ]
 
-            const boleto = await boletoService.importCSV(csvFile as Express.Multer.File)
-            console.log(boleto)
+
+            await expect( boletoService.importCSV(csvFile as Express.Multer.File)).rejects.toThrowError(
+                new HttpException(JSON.stringify(lotesNotFound), "Lotes not found", 404)
+            );
 
 
 
         });
 
-       
+
     });
 })
 

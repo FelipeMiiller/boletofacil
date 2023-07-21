@@ -14,7 +14,7 @@ export type IBoleto = {
     ativo: boolean;
     vencimento: Date;
     criado_em?: Date;
-    
+
 }
 
 
@@ -27,9 +27,10 @@ export interface IBoletoRepository {
     createMany(data: Omit<IBoleto, "id">[]): Promise<string>;
     findById(id: number): Promise<IBoleto | null>;
     findAll(): Promise<IBoleto[]>;
-    findAllOrderByOrdemPdf(): Promise<IBoleto[]> ;
+    findAllOrderByOrdemPdf(): Promise<IBoleto[]>;
     update(id: number, data: Partial<IBoleto>): Promise<IBoleto>;
     delete(id: number): Promise<void>;
+    deleteAll(): Promise<void>
 }
 
 export class BoletoRepository implements IBoletoRepository {
@@ -143,6 +144,18 @@ export class BoletoRepository implements IBoletoRepository {
         } catch (error) {
             if (error instanceof Error) {
                 throw new DBException(`Failed to delete boleto: ${error.message}`, 400);
+            }
+            throw new DBException('Failed to delete boleto, unknown error !!!', 400);
+        }
+    }
+
+
+    async deleteAll(): Promise<void> {
+        try {
+            await this.prisma.boletos.deleteMany()
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new DBException(`Failed to delete all boletos: ${error.message}`, 400);
             }
             throw new DBException('Failed to delete boleto, unknown error !!!', 400);
         }

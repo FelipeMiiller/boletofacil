@@ -22,6 +22,7 @@ export interface IloteRepository {
   findAllOrderByOrdemPdf(): Promise<ILote[]>
     update(id: number, data: Partial<ILote>): Promise<ILote>;
     delete(id: number): Promise<void>;
+    deleteAll(): Promise<void> ;
 }
 
 export class LoteRepository implements IloteRepository {
@@ -132,6 +133,17 @@ export class LoteRepository implements IloteRepository {
                 throw new DBException(`Failed to delete lote: ${error.message}`, 400);
             }
             throw new DBException('Failed to delete lote, unknown error !!!', 400);
+        }
+    }
+
+    async deleteAll(): Promise<void> {
+        try {
+           await this.prisma.lotes.deleteMany();
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new DBException(`Failed to delete all lotes: ${error.message}`, 400);
+            }
+            throw new DBException('Failed to delete all lotes, unknown error !!!', 400);
         }
     }
 }

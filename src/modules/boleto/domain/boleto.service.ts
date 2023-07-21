@@ -42,14 +42,14 @@ export class BoletoService {
 
     async importCSV(data: Express.Multer.File) {
         try {
-            console.log(data)
+
             const boletosCSV = await csvParser(data) as unknown as Array<TCSVBoleto>
             const boletos = await this.findLotes(boletosCSV)
             const result = await this.boletoRepository.createMany(boletos)
 
             return result
         } catch (error) {
-            console.log(error)
+
             if (error instanceof HttpException) {
                 throw error;
             }
@@ -105,7 +105,7 @@ export class BoletoService {
 
     private async findLotes(boletos: Array<TCSVBoleto>): Promise<Array<Omit<IBoleto, 'id'>>> {
         try {
-            let lotesNotFound: Array<{nome: string, unidade: number}> = []
+            let lotesNotFound: Array<{ nome: string, unidade: number }> = []
             let lotesFind: Array<ILote> = []
             let boletosForSaved: Array<Omit<IBoleto, 'id'>> = []
 
@@ -121,7 +121,6 @@ export class BoletoService {
 
                 const lote = await this.loteRepository.findByIdExterno(boletoParse.unidade);
                 if (lote) {
-                    console.log(lote)
                     lotesFind.push(lote as ILote);
                     boletosForSaved.push({
                         nome_sacado: boletoParse.nome,
@@ -130,11 +129,9 @@ export class BoletoService {
                         linha_digitavel: boletoParse.linha_digitavel,
                         ativo: boletoParse.ativo,
                         vencimento: boletoParse.vencimento
-                        
                     })
-
                 } else {
-                    lotesNotFound.push({nome:boletoParse.nome, unidade:boletoParse.unidade})
+                    lotesNotFound.push({ nome: boletoParse.nome, unidade: boletoParse.unidade })
                 }
 
             }
@@ -142,7 +139,6 @@ export class BoletoService {
             if (lotesNotFound.length > 0) {
                 throw Error(JSON.stringify(lotesNotFound));
             }
-
             return boletosForSaved
 
         } catch (error) {
@@ -152,7 +148,6 @@ export class BoletoService {
             if (error instanceof Error) {
                 throw new HttpException(error.message, "Lotes not found", 404);
             }
-
             throw new HttpException('Find Lotes error, unknown error !!!',);
         }
 
